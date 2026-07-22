@@ -9,7 +9,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: `${siteConfig.name} — Free Online Text & File Tools`, template: `%s | ${siteConfig.name}` },
+  title: { default: `Free Online Text, PDF, Image & Color Tools — ${siteConfig.name}`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
   alternates: { canonical: "/" },
   openGraph: { type: "website", siteName: siteConfig.name, title: siteConfig.name, description: siteConfig.description, url: "/" },
