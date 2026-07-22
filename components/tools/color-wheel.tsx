@@ -4,9 +4,9 @@ import { useMemo, useRef, useState } from "react";
 import { Check, Clipboard } from "lucide-react";
 
 const clamp = (value: number, min = 0, max = 100) => Math.min(max, Math.max(min, value));
-function hslToHex(h: number, s: number, l: number) { s /= 100; l /= 100; const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2; let [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x]; return `#${[r, g, b].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, "0")).join("")}`.toUpperCase(); }
+function hslToHex(h: number, s: number, l: number) { s /= 100; l /= 100; const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2; const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x]; return `#${[r, g, b].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, "0")).join("")}`.toUpperCase(); }
 function hexToRgb(hex: string) { const value = parseInt(hex.slice(1), 16); return [(value >> 16) & 255, (value >> 8) & 255, value & 255]; }
-function hexToHsl(hex: string) { let [r, g, b] = hexToRgb(hex).map((v) => v / 255); const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min; let h = 0; if (d) h = max === r ? 60 * (((g - b) / d) % 6) : max === g ? 60 * ((b - r) / d + 2) : 60 * ((r - g) / d + 4); return [Math.round((h + 360) % 360), Math.round(d ? d / (1 - Math.abs(2 * l - 1)) * 100 : 0), Math.round(l * 100)]; }
+function hexToHsl(hex: string) { const [r, g, b] = hexToRgb(hex).map((v) => v / 255); const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min; let h = 0; if (d) h = max === r ? 60 * (((g - b) / d) % 6) : max === g ? 60 * ((b - r) / d + 2) : 60 * ((r - g) / d + 4); return [Math.round((h + 360) % 360), Math.round(d ? d / (1 - Math.abs(2 * l - 1)) * 100 : 0), Math.round(l * 100)]; }
 export function ColorWheel() {
   const [hue, setHue] = useState(258), [saturation, setSaturation] = useState(62), [lightness, setLightness] = useState(60), [mode, setMode] = useState("complementary"), [copied, setCopied] = useState(""); const wheel = useRef<HTMLDivElement>(null);
   const hex = hslToHex(hue, saturation, lightness), rgb = hexToRgb(hex);
