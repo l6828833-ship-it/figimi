@@ -3,10 +3,21 @@
 import { DragEvent, useEffect, useRef, useState } from "react";
 import { Check, Clipboard, Download, FileImage, LoaderCircle, RotateCcw, ShieldCheck, XCircle } from "lucide-react";
 
-type TesseractLike = { recognize: (image: File | string, lang: string, options?: { logger?: (message: { status: string; progress: number }) => void }) => Promise<{ data: { text: string } }> };
+type OcrProgress = { status?: string; progress?: number };
+type OcrWorker = { recognize: (image: File | string) => Promise<{ data: { text: string } }>; terminate: () => Promise<unknown> };
+type TesseractLike = {
+  createWorker?: (lang?: string, oem?: number, options?: Record<string, unknown>) => Promise<OcrWorker>;
+  recognize?: (image: File | string, lang: string, options?: Record<string, unknown>) => Promise<{ data: { text: string } }>;
+};
 declare global { interface Window { Tesseract?: TesseractLike } }
 
-const CDN_URL = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+// Pin every asset to the same major version and give the worker explicit paths,
+// otherwise the background worker fails to load its scripts from the CDN.
+const VERSION = "5";
+const CDN_URL = `https://cdn.jsdelivr.net/npm/tesseract.js@${VERSION}/dist/tesseract.min.js`;
+const WORKER_PATH = `https://cdn.jsdelivr.net/npm/tesseract.js@${VERSION}/dist/worker.min.js`;
+const CORE_PATH = `https://cdn.jsdelivr.net/npm/tesseract.js-core@${VERSION}`;
+const LANG_PATH = "https://tessdata.projectnaptha.com/4.0.0";
 const ACCEPT = ".png,.jpg,.jpeg,.webp,.bmp,.gif";
 const MAX_BYTES = 15 * 1024 * 1024;
 
@@ -51,14 +62,27 @@ export function ImageToText() {
 
   async function extract() {
     if (!file) return;
-    setStatus("reading"); setProgress(0); setText(""); setMessage("Preparing the OCR engine…");
+    setStatus("reading"); setProgress(0); setText(""); setMessage("Loading the OCR engine (first run downloads language data)…");
+    const logger = (event: OcrProgress) => {
+      if (event.status === "recognizing text" && typeof event.progress === "number") { setProgress(Math.max(1, Math.round(event.progress * 100))); setMessage("Reading text from your image…"); }
+      else if (event.status?.includes("loading") || event.status?.includes("initial")) setMessage("Loading the OCR engine (first run downloads language data)…");
+    };
     try {
       const engine = await loadEngine();
-      setMessage("Reading text from your image…");
-      const { data } = await engine.recognize(file, "eng", { logger: (event) => { if (event.status === "recognizing text") setProgress(Math.max(1, Math.round(event.progress * 100))); } });
-      const output = data.text.trim();
+      let output = "";
+      if (typeof engine.createWorker === "function") {
+        const worker = await engine.createWorker("eng", 1, { workerPath: WORKER_PATH, corePath: CORE_PATH, langPath: LANG_PATH, logger });
+        try { const { data } = await worker.recognize(file); output = data.text; }
+        finally { await worker.terminate(); }
+      } else if (typeof engine.recognize === "function") {
+        const { data } = await engine.recognize(file, "eng", { workerPath: WORKER_PATH, corePath: CORE_PATH, langPath: LANG_PATH, logger });
+        output = data.text;
+      } else {
+        throw new Error("The OCR engine did not load correctly. Please refresh and try again.");
+      }
+      output = output.trim();
       setText(output); setProgress(100); setStatus("done");
-      setMessage(output ? "Text extracted successfully." : "No readable text was detected in this image.");
+      setMessage(output ? "Text extracted successfully." : "No readable text was detected. Try a sharper, higher-contrast image.");
     } catch (error) {
       fail(error instanceof Error ? error.message : "We could not read text from that image.");
     }
