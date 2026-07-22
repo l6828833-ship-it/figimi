@@ -1,6 +1,7 @@
 import { Trash2, Upload } from "lucide-react";
 import { deleteMediaAction, uploadMediaAction } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { CopyField } from "@/components/admin/copy-field";
 
 type MediaRow = { id: string; name: string; path: string; url: string; alt_text: string };
 
@@ -26,7 +27,7 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
       {media.map((item) => <article key={item.id}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={item.url} alt={item.alt_text} width={320} height={180} loading="lazy" />
-        <div><strong>{item.name}</strong><small>{item.alt_text}</small><input readOnly value={item.url} onFocus={(e) => e.currentTarget.select()} /><form action={deleteMediaAction}><input type="hidden" name="id" value={item.id} /><input type="hidden" name="path" value={item.path} /><button title="Delete image"><Trash2 size={16} /></button></form></div>
+        <div><strong>{item.name}</strong><small>{item.alt_text}</small><CopyField value={item.url} /><form action={deleteMediaAction}><input type="hidden" name="id" value={item.id} /><input type="hidden" name="path" value={item.path} /><button title="Delete image"><Trash2 size={16} /></button></form></div>
       </article>)}
       {!media.length && !loadError && <p>No media uploaded yet.</p>}
     </div>
