@@ -7,9 +7,12 @@ const nextConfig: NextConfig = {
     loader: "custom",
     loaderFile: "./lib/image-loader.ts",
     remotePatterns: [
-      // Allow any HTTPS host so a custom Cloudflare/media CDN hostname works out of the box.
-      // Safe here because images use a custom loader (no server-side optimization of arbitrary URLs).
-      // To restrict, replace "**" with your specific host, e.g. "media.yourdomain.com".
+      // Explicit hosts (guaranteed to match) + a broad wildcard fallback.
+      // Images use a custom loader, so no server-side optimization of arbitrary URLs happens.
+      { protocol: "https", hostname: "media.figimi.com" },
+      { protocol: "https", hostname: "**.figimi.com" },
+      { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "imagedelivery.net" },
       { protocol: "https", hostname: "**" },
     ],
     formats: ["image/avif", "image/webp"],
