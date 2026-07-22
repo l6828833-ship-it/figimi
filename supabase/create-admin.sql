@@ -2,25 +2,28 @@
 -- Promote a Supabase Auth user to the "admin" role for the Figimi admin panel.
 -- ============================================================================
 --
--- Prerequisites (do these first, once):
---   1. Run the migrations in supabase/migrations/ (in order), then supabase/seed.sql.
---   2. In the Supabase dashboard: Authentication -> Providers -> enable "Email"
---      (email + password). Turn OFF public sign-ups so only you create accounts.
---   3. Authentication -> Users -> "Add user" -> create your account with a
---      strong password (and confirm the email if prompted).
+-- IMPORTANT: run these FIRST, in this exact order, or you'll get
+-- 'relation "public.profiles" does not exist':
+--   1. supabase/migrations/202607220001_initial_schema.sql   (creates tables)
+--   2. supabase/migrations/202607220002_auth_profile_trigger.sql
+--   3. supabase/seed.sql                                     (page content)
+--   4. Supabase dashboard -> Authentication -> Providers -> enable "Email".
+--   5. Authentication -> Users -> "Add user" -> create your account.
 --
--- A database trigger automatically creates a matching row in public.profiles
--- with role = 'editor'. Run the statement below to upgrade that account to
--- 'admin'. (Both 'admin' and 'editor' can sign in; 'admin' is full access.)
+-- Then replace the email below with your real login email and run this file
+-- in the Supabase SQL editor.
 --
--- HOW TO USE: replace the email below with your real login email, then run
--- this file in the Supabase SQL editor.
+-- This insert-or-update works whether or not the profile row already exists
+-- (so it's safe even if the account was created before the trigger).
 -- ----------------------------------------------------------------------------
 
-update public.profiles
-set role = 'admin',
-    username = coalesce(username, 'admin')
-where id = (select id from auth.users where email = 'you@example.com');
+insert into public.profiles (id, username, role)
+select u.id, 'admin', 'admin'
+from auth.users u
+where u.email = 'you@example.com'
+on conflict (id) do update
+  set role = 'admin',
+      username = coalesce(public.profiles.username, 'admin');
 
 -- Verify it worked (should show one row with role = admin):
 select p.id, u.email, p.username, p.role
