@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   openGraph: { type: "website", siteName: siteConfig.name, title: siteConfig.name, description: siteConfig.description, url: "/" },
   twitter: { card: "summary_large_image", title: siteConfig.name, description: siteConfig.description },
+  icons: { icon: [{ url: "/logo.svg", type: "image/svg+xml" }], shortcut: "/logo.svg", apple: "/logo.svg" },
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, colorScheme: "light", themeColor: "#6957d9" };
 

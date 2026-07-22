@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import { toolCategories, tools } from "@/lib/tools";
 import { HeaderNav } from "./header-nav";
@@ -10,7 +9,11 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="shell header-inner">
-        <Link className="brand" href="/" aria-label={`${siteConfig.name} home`}><span className="brand-mark"><Sparkles size={20} /></span>{siteConfig.name}</Link>
+        <Link className="brand" href="/" aria-label={`${siteConfig.name} home`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="brand-logo" src="/logo.svg" alt="" width={36} height={36} aria-hidden="true" />
+          {siteConfig.name}
+        </Link>
         <HeaderNav groups={groups} />
       </div>
     </header>
