@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: process.env.NEXT_PUBLIC_SITE_NAME || "Figimi Tools",
+  name: process.env.NEXT_PUBLIC_SITE_NAME || "Figimi",
   shortName: "Figimi",
   description: "Fast, private, and free online text, document, image, and color tools.",
   url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, ""),
