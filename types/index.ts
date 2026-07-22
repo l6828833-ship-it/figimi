@@ -1,0 +1,55 @@
+export type ToolCategory = "Text tools" | "File converters" | "Design tools";
+export type ToolKind = "word-counter" | "character-counter" | "website-counter" | "capitalize" | "compare" | "converter" | "color-wheel";
+
+export interface Faq { question: string; answer: string }
+export interface ToolDefinition {
+  slug: string;
+  name: string;
+  shortDescription: string;
+  description: string;
+  category: ToolCategory;
+  kind: ToolKind;
+  accept?: string;
+  output?: string;
+  keywords: string[];
+  faq: Faq[];
+}
+
+export interface ToolPageRecord {
+  slug: string;
+  title: string;
+  description: string;
+  intro: string;
+  how_to: string[];
+  faq: Faq[];
+  seo_title: string;
+  seo_description: string;
+  og_image: string | null;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  meta_description: string;
+  featured_image: string | null;
+  featured_image_alt: string;
+  category: string;
+  tags: string[];
+  author: string;
+  body: string;
+  status: "draft" | "scheduled" | "published";
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  seo_title?: string | null;
+  og_image?: string | null;
+}
+
+export interface SiteSettings {
+  analytics_id: string;
+  adsense_client_id: string;
+  google_tag_id: string;
+  head_code: string;
+  body_code: string;
+}

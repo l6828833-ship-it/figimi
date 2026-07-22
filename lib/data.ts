@@ -1,0 +1,20 @@
+import "server-only";
+import { unstable_cache } from "next/cache";
+import type { BlogPost, SiteSettings, ToolPageRecord } from "@/types";
+import { legalPages, seedPost, seedSettings } from "./seed";
+import { toolBySlug } from "./tools";
+import { createPublicClient } from "./supabase/public";
+
+const publishedNow = () => new Date().toISOString();
+
+export const getPublishedPosts = unstable_cache(async (limit = 24): Promise<BlogPost[]> => { const client = createPublicClient(); if (!client) return [seedPost].slice(0, limit); try { const { data, error } = await client.from("posts").select("*").in("status", ["published", "scheduled"]).lte("published_at", publishedNow()).order("published_at", { ascending: false }).limit(limit); if (error) throw error; return (data?.length ? data : [seedPost]) as BlogPost[]; } catch (error) { console.warn("Using seed posts:", error); return [seedPost].slice(0, limit); } }, ["published-posts"], { revalidate: 300, tags: ["posts"] });
+
+export const getPostBySlug = unstable_cache(async (slug: string): Promise<BlogPost | null> => { const client = createPublicClient(); if (!client) return slug === seedPost.slug ? seedPost : null; try { const { data, error } = await client.from("posts").select("*").eq("slug", slug).in("status", ["published", "scheduled"]).lte("published_at", publishedNow()).maybeSingle(); if (error) throw error; return (data as BlogPost | null) || (slug === seedPost.slug ? seedPost : null); } catch { return slug === seedPost.slug ? seedPost : null; } }, ["post-by-slug"], { revalidate: 300, tags: ["posts"] });
+
+export async function getRelatedPosts(post: BlogPost) { const all = await getPublishedPosts(20); return all.filter((candidate) => candidate.slug !== post.slug && (candidate.category === post.category || candidate.tags.some((tag) => post.tags.includes(tag)))).slice(0, 3); }
+
+export const getToolPage = unstable_cache(async (slug: string): Promise<ToolPageRecord | null> => { const tool = toolBySlug(slug); if (!tool) return null; const fallback: ToolPageRecord = { slug, title: tool.name, description: tool.shortDescription, intro: tool.description, how_to: [tool.kind === "converter" ? "Upload a supported file using the secure workspace." : "Enter or paste content into the workspace.", "Review the options and generated result.", tool.kind === "converter" ? "Download the result; temporary files are deleted automatically." : "Copy or download the result."], faq: tool.faq, seo_title: `${tool.name} — Free Online Tool`, seo_description: tool.shortDescription, og_image: null }; const client = createPublicClient(); if (!client) return fallback; try { const { data, error } = await client.from("tool_pages").select("*").eq("slug", slug).maybeSingle(); if (error) throw error; return data ? { ...fallback, ...data } as ToolPageRecord : fallback; } catch { return fallback; } }, ["tool-page"], { revalidate: 300, tags: ["tool-pages"] });
+
+export const getContentPage = unstable_cache(async (slug: keyof typeof legalPages) => { const fallback = legalPages[slug]; const client = createPublicClient(); if (!client) return { slug, ...fallback }; try { const { data, error } = await client.from("content_pages").select("slug,title,description,body").eq("slug", slug).maybeSingle(); if (error) throw error; return data || { slug, ...fallback }; } catch { return { slug, ...fallback }; } }, ["content-page"], { revalidate: 300, tags: ["content-pages"] });
+
+export const getSiteSettings = unstable_cache(async (): Promise<SiteSettings> => { const client = createPublicClient(); if (!client) return seedSettings; try { const { data, error } = await client.from("site_settings").select("analytics_id,adsense_client_id,google_tag_id,head_code,body_code").eq("id", 1).maybeSingle(); if (error) throw error; return data ? { ...seedSettings, ...data } : seedSettings; } catch { return seedSettings; } }, ["site-settings"], { revalidate: 300, tags: ["site-settings"] });

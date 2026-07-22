@@ -1,0 +1,8 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Save } from "lucide-react";
+import { saveContentAction } from "@/app/admin/actions";
+import { MarkdownEditor } from "@/components/admin/markdown-editor";
+import { getContentPage } from "@/lib/data";
+import { legalPages } from "@/lib/seed";
+export default async function ContentEditorPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ error?: string }> }) { const { slug } = await params; if (!(slug in legalPages)) notFound(); const page = await getContentPage(slug as keyof typeof legalPages), { error } = await searchParams; return <><div className="admin-heading"><div><span className="eyebrow">Site content</span><h1>{page.title}</h1></div><Link className="button secondary" href="/admin/pages">Cancel</Link></div>{error && <div className="notice error">{decodeURIComponent(error)}</div>}<form action={saveContentAction} className="admin-form wide"><input type="hidden" name="slug" value={slug} /><div className="form-grid"><label>Page title<input name="title" required defaultValue={page.title} /></label><label>SEO title<input name="seo_title" defaultValue={("seo_title" in page && page.seo_title as string) || page.title} /></label><label className="span-2">Meta description<textarea name="description" maxLength={320} rows={3} required defaultValue={page.description} /></label><label className="span-2">Open Graph image URL<input name="og_image" type="url" defaultValue={("og_image" in page && page.og_image as string) || ""} /></label></div><MarkdownEditor defaultValue={page.body} /><div className="form-submit"><button className="button primary"><Save size={17} />Save and publish</button></div></form></>; }
