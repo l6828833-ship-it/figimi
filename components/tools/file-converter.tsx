@@ -18,7 +18,7 @@ export function FileConverter({ tool }: { tool: ToolDefinition }) {
   const request = useRef<XMLHttpRequest | null>(null);
   const operation = useRef(0);
   const outputUrl = useRef("");
-  const allowMultiple = tool.slug === "jpg-to-pdf" || tool.slug === "png-to-pdf";
+  const allowMultiple = tool.slug === "jpg-to-pdf" || tool.slug === "png-to-pdf" || tool.slug === "tiff-to-pdf";
 
   useEffect(() => () => {
     operation.current += 1;
