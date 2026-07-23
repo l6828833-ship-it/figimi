@@ -188,9 +188,8 @@ export function ImageCompressor() {
       source = await loadImage(selectedFile);
       if (operation.current !== currentOperation) return;
 
-      const isBitmap = typeof ImageBitmap !== "undefined" && source instanceof ImageBitmap;
-      const sourceWidth = isBitmap ? source.width : source.naturalWidth;
-      const sourceHeight = isBitmap ? source.height : source.naturalHeight;
+      const sourceWidth = source instanceof HTMLImageElement ? source.naturalWidth : source.width;
+      const sourceHeight = source instanceof HTMLImageElement ? source.naturalHeight : source.height;
       if (!sourceWidth || !sourceHeight || sourceWidth * sourceHeight > MAX_PIXELS) {
         throw new Error("This image is too large. Choose an image under 25 megapixels.");
       }
