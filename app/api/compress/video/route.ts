@@ -65,6 +65,7 @@ function safeBase(name: string) {
 
 function processEnvironment(): NodeJS.ProcessEnv {
   return {
+    NODE_ENV: process.env.NODE_ENV,
     PATH: process.env.PATH || "/usr/local/bin:/usr/bin:/bin",
     HOME: tmpdir(),
     LANG: "C.UTF-8",
