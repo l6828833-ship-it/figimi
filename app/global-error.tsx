@@ -51,10 +51,11 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             >
               {isChunkLoadError(error) ? "Reload" : "Try again"}
             </button>
-            <a
-              href="/"
+            <button
+              onClick={() => window.location.assign("/")}
               style={{
-                textDecoration: "none",
+                cursor: "pointer",
+                border: "none",
                 borderRadius: "10px",
                 padding: "10px 18px",
                 fontSize: "0.95rem",
@@ -64,7 +65,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
               }}
             >
               Back to home
-            </a>
+            </button>
           </div>
         </main>
       </body>
