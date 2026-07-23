@@ -121,7 +121,6 @@ function runProcess(options: {
     let settled = false;
     let terminalError: Error | undefined;
     let stopFallback: NodeJS.Timeout | undefined;
-    let timer: NodeJS.Timeout;
 
     const finish = (error?: Error) => {
       if (settled) return;
@@ -140,7 +139,7 @@ function runProcess(options: {
       stopFallback.unref();
     };
     const onAbort = () => stop(new ProcessingError("The request was canceled.", 499));
-    timer = setTimeout(
+    const timer = setTimeout(
       () => stop(new ProcessingError("Video processing timed out. Try a shorter or smaller video.", 504)),
       timeoutMs,
     );

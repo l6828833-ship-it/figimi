@@ -47,7 +47,6 @@ async function run(command: string, args: string[], timeoutMs = 120_000, signal?
     let settled = false;
     let terminalError: Error | undefined;
     let stopFallback: NodeJS.Timeout | undefined;
-    let timer: NodeJS.Timeout;
     const finish = (error?: Error) => {
       if (settled) return;
       settled = true;
@@ -64,7 +63,7 @@ async function run(command: string, args: string[], timeoutMs = 120_000, signal?
       stopFallback.unref();
     };
     const onAbort = () => stop(new Error("Conversion was canceled."));
-    timer = setTimeout(() => stop(new Error("Conversion timed out. Try a smaller or simpler file.")), timeoutMs);
+    const timer = setTimeout(() => stop(new Error("Conversion timed out. Try a smaller or simpler file.")), timeoutMs);
     signal?.addEventListener("abort", onAbort, { once: true });
     if (signal?.aborted) onAbort();
     child.stdout.on("data", (chunk: Buffer) => { if (stdout.length < 16_000) stdout += chunk.toString().slice(0, 16_000 - stdout.length); });
