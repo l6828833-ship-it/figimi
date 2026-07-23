@@ -5,14 +5,16 @@ import { legalPages, seedPost, seedSettings } from "./seed";
 import { toolBySlug } from "./tools";
 import { createPublicClient } from "./supabase/public";
 
-const publishedNow = () => new Date().toISOString();
 const fileToolKinds = new Set<string>(["converter", "image-compressor", "video-compressor"]);
 
-const duePostsFilter = () => `status.eq.published,and(status.eq.scheduled,published_at.lte.${publishedNow()})`;
+// Public post visibility (published, or scheduled and due) is enforced by the
+// "Public can read due posts" Row-Level-Security policy on the anon client, so
+// we simply exclude drafts here. We intentionally avoid a PostgREST `.or()`
+// filter with an embedded timestamp, which fails to parse (unescaped colons)
+// and previously caused every real post to 404 / fall back to seed content.
+export const getPublishedPosts = unstable_cache(async (limit = 24): Promise<BlogPost[]> => { const client = createPublicClient(); if (!client) return [seedPost].slice(0, limit); try { const { data, error } = await client.from("posts").select("*").neq("status", "draft").order("published_at", { ascending: false }).limit(limit); if (error) throw error; return (data?.length ? data : [seedPost]) as BlogPost[]; } catch (error) { console.warn("Using seed posts:", error); return [seedPost].slice(0, limit); } }, ["published-posts"], { revalidate: 300, tags: ["posts"] });
 
-export const getPublishedPosts = unstable_cache(async (limit = 24): Promise<BlogPost[]> => { const client = createPublicClient(); if (!client) return [seedPost].slice(0, limit); try { const { data, error } = await client.from("posts").select("*").or(duePostsFilter()).order("published_at", { ascending: false }).limit(limit); if (error) throw error; return (data?.length ? data : [seedPost]) as BlogPost[]; } catch (error) { console.warn("Using seed posts:", error); return [seedPost].slice(0, limit); } }, ["published-posts"], { revalidate: 300, tags: ["posts"] });
-
-export const getPostBySlug = unstable_cache(async (slug: string): Promise<BlogPost | null> => { const client = createPublicClient(); if (!client) return slug === seedPost.slug ? seedPost : null; try { const { data, error } = await client.from("posts").select("*").eq("slug", slug).or(duePostsFilter()).maybeSingle(); if (error) throw error; return (data as BlogPost | null) || (slug === seedPost.slug ? seedPost : null); } catch { return slug === seedPost.slug ? seedPost : null; } }, ["post-by-slug"], { revalidate: 300, tags: ["posts"] });
+export const getPostBySlug = unstable_cache(async (slug: string): Promise<BlogPost | null> => { const client = createPublicClient(); if (!client) return slug === seedPost.slug ? seedPost : null; try { const { data, error } = await client.from("posts").select("*").eq("slug", slug).neq("status", "draft").maybeSingle(); if (error) throw error; return (data as BlogPost | null) || (slug === seedPost.slug ? seedPost : null); } catch { return slug === seedPost.slug ? seedPost : null; } }, ["post-by-slug"], { revalidate: 300, tags: ["posts"] });
 
 export async function getRelatedPosts(post: BlogPost) { const all = await getPublishedPosts(20); return all.filter((candidate) => candidate.slug !== post.slug && (candidate.category === post.category || candidate.tags.some((tag) => post.tags.includes(tag)))).slice(0, 3); }
 
