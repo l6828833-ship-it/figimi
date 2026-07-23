@@ -39,7 +39,7 @@ async function run(command: string, args: string[], timeoutMs = 120_000, signal?
   return new Promise<string>((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: ["ignore", "pipe", "pipe"],
-      env: { PATH: process.env.PATH || "/usr/local/bin:/usr/bin:/bin", HOME: tmpdir(), LANG: "C.UTF-8", LC_ALL: "C.UTF-8" },
+      env: { NODE_ENV: process.env.NODE_ENV, PATH: process.env.PATH || "/usr/local/bin:/usr/bin:/bin", HOME: tmpdir(), LANG: "C.UTF-8", LC_ALL: "C.UTF-8" },
       shell: false,
     });
     let stdout = "";
