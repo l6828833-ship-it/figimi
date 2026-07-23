@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isChunkLoadError, recoverFromChunkError } from "@/lib/chunk-recovery";
 
 // The global error boundary replaces the root layout when it crashes, so it must
 // render its own <html> and <body>. Styles are inline because globals.css may not
@@ -8,6 +9,7 @@ import { useEffect } from "react";
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error("Global application error:", error);
+    recoverFromChunkError(error);
   }, [error]);
 
   return (
@@ -35,7 +37,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           )}
           <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
             <button
-              onClick={reset}
+              onClick={() => (isChunkLoadError(error) ? window.location.reload() : reset())}
               style={{
                 cursor: "pointer",
                 border: "none",
@@ -47,7 +49,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
                 background: "#6957d9",
               }}
             >
-              Try again
+              {isChunkLoadError(error) ? "Reload" : "Try again"}
             </button>
             <a
               href="/"
