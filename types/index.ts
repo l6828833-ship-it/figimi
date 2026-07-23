@@ -1,5 +1,5 @@
 export type ToolCategory = "Text tools" | "File converters" | "Design tools";
-export type ToolKind = "word-counter" | "character-counter" | "website-counter" | "capitalize" | "compare" | "converter" | "color-wheel" | "random-color" | "image-to-text";
+export type ToolKind = "word-counter" | "character-counter" | "website-counter" | "capitalize" | "compare" | "converter" | "color-wheel" | "random-color" | "image-to-text" | "image-compressor" | "video-compressor";
 
 export interface Faq { question: string; answer: string }
 export interface ToolDefinition {

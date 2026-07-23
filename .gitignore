@@ -11,3 +11,4 @@ coverage/
 .tmp/
 tmp/
 public/uploads/
+*.tsbuildinfo

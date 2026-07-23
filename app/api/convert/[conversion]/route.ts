@@ -13,7 +13,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
   try {
     const form = await request.formData();
     const files = form.getAll("files").filter((entry): entry is File => entry instanceof File);
-    const result = await convertFiles(conversion, files);
+    const result = await convertFiles(conversion, files, request.signal);
     return new NextResponse(new Uint8Array(result.data), { status: 200, headers: { "Content-Type": result.contentType, "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(result.downloadName)}`, "Cache-Control": "private, no-store, max-age=0", "X-Content-Type-Options": "nosniff" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Conversion failed. The file may be corrupt or unsupported.";

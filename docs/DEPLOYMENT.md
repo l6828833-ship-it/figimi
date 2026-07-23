@@ -42,9 +42,11 @@ docker build -t figimi-tools .
 docker run --rm -p 3000:3000 --env-file .env figimi-tools
 ```
 
-The image installs LibreOffice Writer/Calc/Impress, `pdftotext`, `pdftoppm`, and Liberation fonts. Allocate at least 1 GB RAM; 2 GB is safer for simultaneous office conversions. Set the platform request timeout to at least 180 seconds and request-body limit above 21 MB. The app enforces a 20 MB file total itself.
+The image installs LibreOffice Writer/Calc/Impress, `pdftotext`, `pdftoppm`, FFmpeg/ffprobe, `heif-info`/`heif-convert`, and Liberation fonts. Allocate at least 2 GB RAM when video compression is enabled. Set the platform request timeout above 310 seconds and its request-body limit above 100 MB. The app separately enforces 20 MB for document conversions, 20 MB and 25 megapixels for browser-side images, 20 MB and 40 megapixels for HEIC conversion, and 100 MB, 10 minutes, 4K, and 120 fps for video uploads.
 
 For higher conversion volume, move `convertFiles` calls to isolated queue workers (for example BullMQ/Redis) and return job status from the API. The current implementation already isolates each request in a random OS temp directory, invokes binaries without a shell, enforces process timeouts, validates extensions and magic bytes, and deletes the directory in `finally`.
+
+FFmpeg and ffprobe parse untrusted native media. The application runs them as the unprivileged `nextjs` user with a local-file-only protocol allowlist, two encoding threads, strict media limits, and a one-job process-local semaphore. For stronger isolation, move video processing to a dedicated worker container with no outbound network, read-only root storage, a writable temporary volume, a PID limit, and hard CPU/memory limits. Multi-instance deployments also need a shared queue or distributed semaphore.
 
 Run these release checks on the deployment image:
 
@@ -91,6 +93,7 @@ For Supabase media behind a dedicated hostname, proxy that hostname through Clou
 - Enable managed Cloudflare rules and bot protection appropriate for the plan.
 - Rate-limit `/admin/login` to approximately 10 requests per minute per IP, with a managed challenge or temporary block.
 - Rate-limit `POST /api/convert/*` to a sustainable value (for example 10 requests per 10 minutes per IP), and cap concurrent work at the hosting layer.
+- Rate-limit `POST /api/compress/video` more strictly based on available CPU (for example 3 requests per 10 minutes per IP). Its one-job semaphore is process-local, so multi-instance deployments need a shared queue or edge-enforced concurrency limit.
 - Rate-limit `POST /api/website-word-count` to prevent proxy abuse.
 - Do not create a cache rule that ignores query/cookie variation on admin or API paths.
 

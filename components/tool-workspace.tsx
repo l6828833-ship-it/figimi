@@ -6,6 +6,8 @@ import { WebsiteCounter } from "./tools/website-counter";
 import { ColorWheel } from "./tools/color-wheel";
 import { RandomColor } from "./tools/random-color";
 import { ImageToText } from "./tools/image-to-text";
+import { ImageCompressor } from "./tools/image-compressor";
+import { VideoCompressor } from "./tools/video-compressor";
 import { FileConverter } from "./tools/file-converter";
 
 export function ToolWorkspace({ tool }: { tool: ToolDefinition }) {
@@ -17,5 +19,7 @@ export function ToolWorkspace({ tool }: { tool: ToolDefinition }) {
   if (tool.kind === "color-wheel") return <ColorWheel />;
   if (tool.kind === "random-color") return <RandomColor />;
   if (tool.kind === "image-to-text") return <ImageToText />;
+  if (tool.kind === "image-compressor") return <ImageCompressor />;
+  if (tool.kind === "video-compressor") return <VideoCompressor />;
   return <FileConverter tool={tool} />;
 }
