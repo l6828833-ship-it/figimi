@@ -53,3 +53,13 @@ export interface SiteSettings {
   head_code: string;
   body_code: string;
 }
+
+
+export interface ContentPageRecord {
+  slug: string;
+  title: string;
+  description: string;
+  body: string;
+  seo_title?: string | null;
+  og_image?: string | null;
+}

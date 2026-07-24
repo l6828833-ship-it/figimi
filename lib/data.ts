@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import type { BlogPost, SiteSettings, ToolPageRecord } from "@/types";
+import type { BlogPost, ContentPageRecord, SiteSettings, ToolPageRecord } from "@/types";
 import { legalPages, seedPost, seedSettings } from "./seed";
 import { toolBySlug } from "./tools";
 import { createPublicClient } from "./supabase/public";
@@ -20,6 +20,12 @@ export async function getRelatedPosts(post: BlogPost) { const all = await getPub
 
 export const getToolPage = unstable_cache(async (slug: string): Promise<ToolPageRecord | null> => { const tool = toolBySlug(slug); if (!tool) return null; const fallback: ToolPageRecord = { slug, title: tool.name, description: tool.shortDescription, intro: tool.description, how_to: [fileToolKinds.has(tool.kind) ? "Upload a supported file using the secure workspace." : "Enter or paste content into the workspace.", "Review the options and generated result.", fileToolKinds.has(tool.kind) ? "Download the result; temporary files are deleted automatically." : "Copy or download the result."], faq: tool.faq, seo_title: `${tool.name} — Free Online Tool`, seo_description: tool.shortDescription, og_image: null }; const client = createPublicClient(); if (!client) return fallback; try { const { data, error } = await client.from("tool_pages").select("*").eq("slug", slug).maybeSingle(); if (error) throw error; return data ? { ...fallback, ...data } as ToolPageRecord : fallback; } catch { return fallback; } }, ["tool-page"], { revalidate: 300, tags: ["tool-pages"] });
 
-export const getContentPage = unstable_cache(async (slug: keyof typeof legalPages) => { const fallback = legalPages[slug]; const client = createPublicClient(); if (!client) return { slug, ...fallback }; try { const { data, error } = await client.from("content_pages").select("slug,title,description,body").eq("slug", slug).maybeSingle(); if (error) throw error; return data || { slug, ...fallback }; } catch { return { slug, ...fallback }; } }, ["content-page"], { revalidate: 300, tags: ["content-pages"] });
+// Returns any content page by slug: a row stored in the content_pages table, or
+// a built-in legal-page default, or null if neither exists (so the route 404s).
+export const getContentPage = unstable_cache(async (slug: string): Promise<ContentPageRecord | null> => { const fallback = slug in legalPages ? { slug, ...legalPages[slug as keyof typeof legalPages] } : null; const client = createPublicClient(); if (!client) return fallback; try { const { data, error } = await client.from("content_pages").select("slug,title,description,body,seo_title,og_image").eq("slug", slug).maybeSingle(); if (error) throw error; return (data as ContentPageRecord | null) || fallback; } catch { return fallback; } }, ["content-page"], { revalidate: 300, tags: ["content-pages"] });
+
+// All content-page slugs (built-in legal pages plus any custom pages in the DB),
+// used to pre-render routes and for sitemaps.
+export const getContentPageSlugs = unstable_cache(async (): Promise<string[]> => { const legal = Object.keys(legalPages); const client = createPublicClient(); if (!client) return legal; try { const { data, error } = await client.from("content_pages").select("slug"); if (error) throw error; const dbSlugs = (data || []).map((row) => row.slug as string); return Array.from(new Set([...legal, ...dbSlugs])); } catch { return legal; } }, ["content-page-slugs"], { revalidate: 300, tags: ["content-pages"] });
 
 export const getSiteSettings = unstable_cache(async (): Promise<SiteSettings> => { const client = createPublicClient(); if (!client) return seedSettings; try { const { data, error } = await client.from("site_settings").select("analytics_id,adsense_client_id,google_tag_id,head_code,body_code").eq("id", 1).maybeSingle(); if (error) throw error; return data ? { ...seedSettings, ...data } : seedSettings; } catch { return seedSettings; } }, ["site-settings"], { revalidate: 300, tags: ["site-settings"] });
