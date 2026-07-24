@@ -68,32 +68,59 @@ The service is provided “as is” without warranties of accuracy, availability
 ## Changes and contact
 
 We may update these terms to reflect legal or product changes. Continued use after an update means you accept the revised terms. Questions can be sent through the Contact page. Last updated: July 22, 2026.` },
-  about: { title: "About Us", description: "Figimi is an independent, privacy-first collection of free online tools for text, documents, images, and color — built and maintained in the European Union.", body: `## Who we are
+  about: { title: "About Us", description: "Figimi is an independent, privacy-first platform of free online tools for text, PDFs, documents, images, video, and color — built and maintained in the European Union by Aymen Lasfar.", body: `Figimi is a free, privacy-first collection of online tools that help you get everyday digital tasks done in seconds — counting words, converting PDFs and documents, compressing images and video, extracting text from pictures, and working with color. There is nothing to install and no account to create. You open a page, use the tool, and you are done.
 
-Figimi is an independent project created and maintained by Aymen Lasfar, based in Portugal (European Union). It is a growing collection of free, focused online tools for writers, students, designers, office teams, and anyone who needs to transform information quickly — without installing heavy software or creating an account.
+## Who is behind Figimi
+
+Figimi is an independent project founded, built, and maintained by **Aymen Lasfar**, based in Portugal (European Union). It is not a large corporation harvesting your data — it is a focused, carefully built product from a single maker who uses these tools every day and cares about doing them well. Being based in the EU also means Figimi is built around strong data-protection expectations from the start.
 
 ## Our mission
 
-Useful software should feel simple. Our goal is to make everyday digital tasks — counting words, converting a file, compressing an image or video, extracting text from a picture, or choosing colors — fast, accessible, and respectful of your privacy. Every tool explains what it does, shows its limits, and works just as well on a phone as on a desktop.
+We believe useful software should feel simple, load fast, and respect your privacy. Too many "free tools" bury a small feature under pop-ups, forced sign-ups, and confusing steps. Figimi's mission is the opposite: give you a clear, honest tool that does exactly what it says, explains its limits, and works just as well on a phone as on a laptop.
 
-## What we offer
+## What you can do with Figimi
 
-- **Text tools** — [Word Counter](/tools/word-counter), [Character Counter](/tools/character-counter), [Auto Capitalize](/tools/auto-capitalize), [Compare Text](/tools/compare-text), and more.
-- **File converters** — [PDF to Word](/tools/pdf-to-word), [Word to PDF](/tools/word-to-pdf), image and document conversions, plus [Image](/tools/image-compressor) and [Video](/tools/video-compressor) compressors.
-- **Design tools** — a [Color Wheel](/tools/color-wheel) and [Random Color Generator](/tools/random-color-generator).
-- **Guides** — original, practical articles on our [blog](/blog).
+Figimi brings together tools that people usually hunt across a dozen different websites:
 
-## Privacy by design
+- **Text tools** — analyze and clean up writing with the [Word Counter](/tools/word-counter), [Character Counter](/tools/character-counter), [Web Page Word Counter](/tools/website-word-counter), [Auto Capitalize](/tools/auto-capitalize), and [Compare Text](/tools/compare-text).
+- **PDF & document converters** — [PDF to Word](/tools/pdf-to-word), [Word to PDF](/tools/word-to-pdf), [PDF to JPG](/tools/pdf-to-jpg), [JPG to PDF](/tools/jpg-to-pdf), [PDF to Excel](/tools/pdf-to-excel), [PowerPoint to PDF](/tools/ppt-to-pdf), and more.
+- **Image & video tools** — shrink files with the [Image Compressor](/tools/image-compressor) and [Video Compressor](/tools/video-compressor), convert formats like [HEIC to JPG](/tools/heic-to-jpg), and pull editable text out of pictures with our in-browser [Image to Text (OCR)](/tools/image-to-text).
+- **Color & design tools** — explore harmonies with the [Color Wheel](/tools/color-wheel) and spark ideas with the [Random Color Generator](/tools/random-color-generator).
+- **Guides** — practical, original how-to articles on the [Figimi blog](/blog).
 
-Many of our tools run entirely in your browser, so your text or images never leave your device. When a tool must process a file on our server (for example, some conversions and video compression), the file is handled in temporary storage and deleted automatically shortly after processing — and in all cases within one hour. We never sell your data or use your files for advertising. Read the full details in our [Privacy Policy](/privacy-policy) and [Security & Compliance](/security-and-compliance) pages.
+## Built around your privacy
 
-## How we build
+Privacy isn't an afterthought at Figimi — it shapes how the tools are built:
 
-We test our pages for keyboard use, readable structure, responsive layouts, and fast loading. We publish original guides rather than empty tool pages, and we recommend reviewing any important result against your original file.
+- **Many tools run entirely in your browser.** Text counters, case conversion, text comparison, color tools, image compression, and OCR process your content on your own device, so it never leaves your computer or phone.
+- **Files are deleted quickly.** When a tool must process a file on our server (such as certain conversions and video compression), it is handled in isolated temporary storage and deleted automatically right after processing — and in all cases within **one hour**.
+- **No accounts, no profiles, no data sales.** We don't require sign-up, we don't build advertising profiles from your files, and we never sell your data.
+
+You can read the full details in our [Privacy Policy](/privacy-policy) and [Security & Compliance](/security-and-compliance) pages.
+
+## Free, fast, and for everyone
+
+Every tool on Figimi is free to use, with no hidden paywall on core features. We keep pages lightweight so they load quickly even on slower connections, and we design them to be usable with a keyboard and readable on any screen size. Whether you are a student finishing an assignment, a writer polishing a draft, an office worker converting a report, or a designer choosing a palette, the tools are meant to just work.
+
+## How we build and maintain Figimi
+
+Figimi is built on a modern, server-rendered web stack for speed and reliability. Beyond shipping features, we:
+
+- Test pages for accessibility, responsive layout, and fast loading.
+- Write **original** guides that genuinely help — never empty, auto-generated filler.
+- Update tools and content as formats, browsers, and best practices evolve.
+
+Because tools can occasionally lose formatting or precision (for example, complex PDF layouts), we always recommend reviewing an important result against your original file.
+
+## Our commitment to you
+
+- **Transparency** — each tool explains what it does and its limitations.
+- **Honesty** — no dark patterns, forced installs, or misleading buttons.
+- **Respect** — your time and your data are treated as they should be.
 
 ## Get in touch
 
-Have an idea, a bug report, or a request about your data? Visit our [Contact page](/contact). Practical feedback directly shapes what we improve next.` },
+Have an idea for a new tool, found a bug, or want to make a request about your data? We'd genuinely like to hear from you — practical feedback directly shapes what we build next. Reach us anytime through the [Contact page](/contact).` },
   "security-and-compliance": { title: "Security & Compliance", description: "How Figimi protects your data: encryption, automatic file deletion, trusted infrastructure, GDPR compliance, and responsible disclosure.", body: `At Figimi, protecting your data is as important as delivering fast, reliable tools. This page summarizes the security practices and compliance measures behind the service. Figimi is operated by Aymen Lasfar from Portugal (European Union).
 
 ## Encryption in transit
