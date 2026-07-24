@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { isMailgunConfigured, sendMailgunMessage } from "@/lib/mailgun";
+import { isEmailConfigured, sendTransactionalEmail } from "@/lib/brevo";
 import { siteConfig } from "@/lib/site";
 
 export type ContactState = { ok?: boolean; error?: string; fieldErrors?: Record<string, string> };
@@ -36,7 +36,7 @@ export async function sendContactMessage(_prev: ContactState, form: FormData): P
     return { error: "Please fix the highlighted fields.", fieldErrors };
   }
 
-  if (!isMailgunConfigured()) {
+  if (!isEmailConfigured()) {
     return { error: `Our contact form isn't available right now. Please email us directly at ${siteConfig.email}.` };
   }
 
@@ -44,7 +44,7 @@ export async function sendContactMessage(_prev: ContactState, form: FormData): P
   const finalSubject = `[${siteConfig.name} Contact] ${subject || "New message"} — from ${name}`;
   const text = `New message via ${siteConfig.name} contact form\n\nName: ${name}\nEmail: ${email}\nSubject: ${subject || "(none)"}\n\nMessage:\n${message}\n`;
 
-  const result = await sendMailgunMessage({ to: siteConfig.email, subject: finalSubject, text, replyTo: email });
+  const result = await sendTransactionalEmail({ to: siteConfig.email, subject: finalSubject, text, replyTo: email });
   if (!result.ok) {
     return { error: `Sorry, we couldn't send your message right now. Please email us directly at ${siteConfig.email}.` };
   }
