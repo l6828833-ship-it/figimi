@@ -49,3 +49,15 @@ body:has(.admin-shell)>.site-header,body:has(.admin-shell)>.site-footer,body:has
 .notice { padding: 0.8rem 1rem; border-radius: 10px; font-weight: 500; margin: 0.5rem 0; }
 .notice.success { background: rgba(39, 174, 96, 0.12); color: #1e7d46; border: 1px solid rgba(39, 174, 96, 0.35); }
 .notice.error { background: rgba(192, 57, 43, 0.1); color: #b5342a; border: 1px solid rgba(192, 57, 43, 0.3); }
+
+
+/* --- Fixes: mobile navigation visibility + layout stability (CLS) --- */
+/* The mobile menu button was hidden at all widths because a later base rule
+   (.mobile-toggle{display:none}) overrode the earlier mobile media query.
+   This rule comes last, so the hamburger correctly shows on small screens. */
+@media (max-width: 850px) { .mobile-toggle { display: inline-flex } }
+
+/* Reserve realistic ad space so ads don't push content down when they load
+   (was 80-100px, which caused a large Cumulative Layout Shift near the top). */
+.ad-slot { min-height: 250px }
+.footer-ad { min-height: 120px }

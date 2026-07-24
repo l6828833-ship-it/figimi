@@ -68,17 +68,76 @@ The service is provided “as is” without warranties of accuracy, availability
 ## Changes and contact
 
 We may update these terms to reflect legal or product changes. Continued use after an update means you accept the revised terms. Questions can be sent through the Contact page. Last updated: July 22, 2026.` },
-  about: { title: "About Us", description: "Why Figimi Tools builds fast, private, and accessible utilities for everyday digital work.", body: `## Useful software should feel simple
+  about: { title: "About Us", description: "Figimi is an independent, privacy-first collection of free online tools for text, documents, images, and color — built and maintained in the European Union.", body: `## Who we are
 
-Figimi Tools is an independent collection of focused utilities for writers, students, designers, office teams, and anyone who needs to transform information without installing a large application.
+Figimi is an independent project created and maintained by Aymen Lasfar, based in Portugal (European Union). It is a growing collection of free, focused online tools for writers, students, designers, office teams, and anyone who needs to transform information quickly — without installing heavy software or creating an account.
 
-Our approach is straightforward: explain what each tool does, show its limits, make the interface work on a phone, and avoid unnecessary registration. Browser-based tools keep text on your device. File tools use short-lived server processing and clear retention rules.
+## Our mission
 
-## Quality, privacy, and access
+Useful software should feel simple. Our goal is to make everyday digital tasks — counting words, converting a file, compressing an image or video, extracting text from a picture, or choosing colors — fast, accessible, and respectful of your privacy. Every tool explains what it does, shows its limits, and works just as well on a phone as on a desktop.
 
-We test pages for keyboard use, readable structure, responsive layouts, and fast loading. We publish original guides that help visitors understand the work behind the button rather than offering empty tool pages. If a result matters to your business, studies, or records, we always recommend reviewing it against the original.
+## What we offer
 
-Have an idea or find a problem? Visit the Contact page. Practical feedback helps us decide what to improve next.` },
+- **Text tools** — [Word Counter](/tools/word-counter), [Character Counter](/tools/character-counter), [Auto Capitalize](/tools/auto-capitalize), [Compare Text](/tools/compare-text), and more.
+- **File converters** — [PDF to Word](/tools/pdf-to-word), [Word to PDF](/tools/word-to-pdf), image and document conversions, plus [Image](/tools/image-compressor) and [Video](/tools/video-compressor) compressors.
+- **Design tools** — a [Color Wheel](/tools/color-wheel) and [Random Color Generator](/tools/random-color-generator).
+- **Guides** — original, practical articles on our [blog](/blog).
+
+## Privacy by design
+
+Many of our tools run entirely in your browser, so your text or images never leave your device. When a tool must process a file on our server (for example, some conversions and video compression), the file is handled in temporary storage and deleted automatically shortly after processing — and in all cases within one hour. We never sell your data or use your files for advertising. Read the full details in our [Privacy Policy](/privacy-policy) and [Security & Compliance](/security-and-compliance) pages.
+
+## How we build
+
+We test our pages for keyboard use, readable structure, responsive layouts, and fast loading. We publish original guides rather than empty tool pages, and we recommend reviewing any important result against your original file.
+
+## Get in touch
+
+Have an idea, a bug report, or a request about your data? Visit our [Contact page](/contact). Practical feedback directly shapes what we improve next.` },
+  "security-and-compliance": { title: "Security & Compliance", description: "How Figimi protects your data: encryption, automatic file deletion, trusted infrastructure, GDPR compliance, and responsible disclosure.", body: `At Figimi, protecting your data is as important as delivering fast, reliable tools. This page summarizes the security practices and compliance measures behind the service. Figimi is operated by Aymen Lasfar from Portugal (European Union).
+
+## Encryption in transit
+
+All traffic between your browser and Figimi is encrypted using industry-standard HTTPS/TLS. Files you submit to a server-side tool are transferred over the same encrypted connection.
+
+## File handling and automatic deletion
+
+- Many tools (text counters, case conversion, comparison, color tools, image compression, and OCR) run **entirely in your browser** — those files never reach our servers.
+- When a tool must process your file on our server, it is written only to an **isolated, temporary working directory** for the short time needed to complete the task.
+- Uploaded files and their generated outputs are **deleted automatically** immediately after processing, and in all cases within a maximum of **one (1) hour**.
+- We do not back up, index, view, or reuse your files, and we never use them for advertising or model training.
+
+## Infrastructure and sub-processors
+
+We rely on a small number of reputable providers, each with its own strong security program:
+
+- **Railway** — application hosting and file processing.
+- **Supabase** — database, administrator authentication, and media storage for site content.
+- **Cloudflare** — DNS, TLS, content delivery, and protection against attacks.
+- **Google** (Analytics, Tag Manager, AdSense) — where enabled, for measurement and advertising.
+- **Brevo** — delivery of contact-form and service emails.
+
+Each provider processes only the limited data needed to perform its function, under its own security and privacy terms.
+
+## Access control
+
+Administrative access to the site is restricted to the operator and protected by strong authentication. Only authorized access can manage content and settings; there is no public user account system that stores personal profiles.
+
+## Data protection and GDPR
+
+Figimi is established in the European Union and processes personal data in line with the EU General Data Protection Regulation (GDPR). We practice data minimization, keep information only as long as necessary, and honor data-subject rights (access, correction, deletion, and objection). Our lead supervisory authority is the Portuguese data protection authority, the CNPD ([cnpd.pt](https://www.cnpd.pt)). For details on what we process and why, see our [Privacy Policy](/privacy-policy).
+
+## Cookies and consent
+
+Where required by law, non-essential analytics and advertising cookies are set only after you consent, and you can change your choice at any time using the "Manage cookie preferences" link in the footer.
+
+## Responsible disclosure
+
+If you believe you have found a security vulnerability in Figimi, we appreciate a responsible report. Please contact us through the [Contact page](/contact) with enough detail to reproduce the issue, and allow us reasonable time to investigate and remediate before any public disclosure. Do not access, modify, or delete data that is not your own while testing.
+
+## Contact
+
+For any security or compliance question, reach us via the [Contact page](/contact).` },
 } as const;
 
 export const seedSettings: SiteSettings = { analytics_id: "", adsense_client_id: "", google_tag_id: "", head_code: "", body_code: "" };
