@@ -5,20 +5,7 @@
 // JavaScript is required here.
 export function CookiePreferences({ className = "" }: { className?: string }) {
   return (
-    <button
-      type="button"
-      className={`cky-banner-element ${className}`.trim()}
-      style={{
-        background: "none",
-        border: 0,
-        padding: 0,
-        margin: 0,
-        font: "inherit",
-        color: "inherit",
-        cursor: "pointer",
-        textAlign: "left",
-      }}
-    >
+    <button type="button" className={`cky-banner-element cookie-preferences-link ${className}`.trim()}>
       Manage cookie preferences
     </button>
   );

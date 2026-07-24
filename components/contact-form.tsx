@@ -46,7 +46,7 @@ export function ContactForm() {
       </label>
 
       {/* Honeypot field: hidden from real users; bots that fill it are ignored. */}
-      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+      <div aria-hidden="true" className="hp-field">
         <label>
           Company
           <input name="company" tabIndex={-1} autoComplete="off" />
