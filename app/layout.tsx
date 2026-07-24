@@ -19,7 +19,12 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, colo
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const settings = await getSiteSettings();
-  const adsense = settings.adsense_client_id || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  // Normalize the AdSense publisher ID to the required ca-pub-XXXX form so the
+  // verification meta tag and loader script are always valid, whether the stored
+  // value is "1277…", "pub-1277…", or "ca-pub-1277…".
+  const rawAdsense = (settings.adsense_client_id || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "").trim();
+  const adsenseDigits = rawAdsense.replace(/\D/g, "");
+  const adsense = adsenseDigits ? `ca-pub-${adsenseDigits}` : "";
   const tag = settings.analytics_id || settings.google_tag_id || process.env.NEXT_PUBLIC_GOOGLE_TAG_ID || process.env.NEXT_PUBLIC_GA_ID;
   const isGtm = tag?.startsWith("GTM-");
   const siteSchema = JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "Organization", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description }, { "@type": "WebSite", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description }] }).replace(/</g, "\\u003c");
