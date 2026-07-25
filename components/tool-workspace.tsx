@@ -8,6 +8,7 @@ import { RandomColor } from "./tools/random-color";
 import { ImageToText } from "./tools/image-to-text";
 import { ImageCompressor } from "./tools/image-compressor";
 import { VideoCompressor } from "./tools/video-compressor";
+import { WeightConverter } from "./tools/weight-converter";
 import { FileConverter } from "./tools/file-converter";
 
 export function ToolWorkspace({ tool }: { tool: ToolDefinition }) {
@@ -21,5 +22,6 @@ export function ToolWorkspace({ tool }: { tool: ToolDefinition }) {
   if (tool.kind === "image-to-text") return <ImageToText />;
   if (tool.kind === "image-compressor") return <ImageCompressor />;
   if (tool.kind === "video-compressor") return <VideoCompressor />;
+  if (tool.kind === "weight-converter") return <WeightConverter />;
   return <FileConverter tool={tool} />;
 }
