@@ -22,6 +22,7 @@ export interface ToolPageRecord {
   intro: string;
   how_to: string[];
   faq: Faq[];
+  body: string;
   seo_title: string;
   seo_description: string;
   og_image: string | null;
