@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, FileText, Palette, Search, Type } from "lucide-react";
+import { ArrowRight, FileText, Palette, Scale, Search, Type } from "lucide-react";
 import { toolCategories, tools } from "@/lib/tools";
 
-const icons = { "Text tools": Type, "File converters": FileText, "Design tools": Palette };
+const icons = { "Text tools": Type, "File converters": FileText, "Design tools": Palette, "Unit converters": Scale };
 const categoryAnchor = (category: string) => category.toLowerCase().replace(/\s+/g, "-");
 
 export function ToolBrowser() {
