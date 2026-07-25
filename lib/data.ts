@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import type { BlogPost, ContentPageRecord, SiteSettings, ToolPageRecord } from "@/types";
-import { legalPages, seedPost, seedSettings } from "./seed";
+import { legalPages, seedSettings } from "./seed";
 import { toolBySlug } from "./tools";
 import { createPublicClient } from "./supabase/public";
 
@@ -12,9 +12,13 @@ const fileToolKinds = new Set<string>(["converter", "image-compressor", "video-c
 // we simply exclude drafts here. We intentionally avoid a PostgREST `.or()`
 // filter with an embedded timestamp, which fails to parse (unescaped colons)
 // and previously caused every real post to 404 / fall back to seed content.
-export const getPublishedPosts = unstable_cache(async (limit = 24): Promise<BlogPost[]> => { const client = createPublicClient(); if (!client) return [seedPost].slice(0, limit); try { const { data, error } = await client.from("posts").select("*").neq("status", "draft").order("published_at", { ascending: false }).limit(limit); if (error) throw error; return (data?.length ? data : [seedPost]) as BlogPost[]; } catch (error) { console.warn("Using seed posts:", error); return [seedPost].slice(0, limit); } }, ["published-posts"], { revalidate: 300, tags: ["posts"] });
+// We never fall back to a hardcoded sample post: a production site must only
+// ever show real, author-written posts. If the DB is unreachable or has no
+// published posts we return an empty list so the blog renders a clean empty
+// state (and the sitemap omits fake URLs) instead of a misleading sample.
+export const getPublishedPosts = unstable_cache(async (limit = 24): Promise<BlogPost[]> => { const client = createPublicClient(); if (!client) return []; try { const { data, error } = await client.from("posts").select("*").neq("status", "draft").order("published_at", { ascending: false }).limit(limit); if (error) throw error; return (data as BlogPost[]) ?? []; } catch (error) { console.warn("Failed to load posts:", error); return []; } }, ["published-posts"], { revalidate: 300, tags: ["posts"] });
 
-export const getPostBySlug = unstable_cache(async (slug: string): Promise<BlogPost | null> => { const client = createPublicClient(); if (!client) return slug === seedPost.slug ? seedPost : null; try { const { data, error } = await client.from("posts").select("*").eq("slug", slug).neq("status", "draft").maybeSingle(); if (error) throw error; return (data as BlogPost | null) || (slug === seedPost.slug ? seedPost : null); } catch { return slug === seedPost.slug ? seedPost : null; } }, ["post-by-slug"], { revalidate: 300, tags: ["posts"] });
+export const getPostBySlug = unstable_cache(async (slug: string): Promise<BlogPost | null> => { const client = createPublicClient(); if (!client) return null; try { const { data, error } = await client.from("posts").select("*").eq("slug", slug).neq("status", "draft").maybeSingle(); if (error) throw error; return (data as BlogPost | null) ?? null; } catch { return null; } }, ["post-by-slug"], { revalidate: 300, tags: ["posts"] });
 
 export async function getRelatedPosts(post: BlogPost) { const all = await getPublishedPosts(20); return all.filter((candidate) => candidate.slug !== post.slug && (candidate.category === post.category || candidate.tags.some((tag) => post.tags.includes(tag)))).slice(0, 3); }
 

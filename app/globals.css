@@ -68,3 +68,6 @@ body:has(.admin-shell)>.site-header,body:has(.admin-shell)>.site-footer,body:has
 .cookie-preferences-link:hover{color:#fff}
 /* Visually hidden honeypot field for the contact form (no inline styles) */
 .hp-field{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+
+
+.blog-empty{text-align:center;padding:60px 20px;font-size:1.1rem;opacity:.7}
