@@ -77,3 +77,4 @@ body:has(.admin-shell)>.site-header,body:has(.admin-shell)>.site-footer,body:has
 .footer-social svg{width:18px;height:18px}
 .footer-social .trustpilot{width:auto;padding:0 13px;gap:8px;font-weight:700;font-size:.85rem;color:#e8e5f2}
 .footer-social .trustpilot .tp-star{color:#00b67a;width:17px;height:17px}
+.blog-empty{text-align:center;padding:60px 20px;font-size:1.1rem;opacity:.7}
