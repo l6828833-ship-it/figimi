@@ -53,6 +53,27 @@ export interface SiteSettings {
   google_tag_id: string;
   head_code: string;
   body_code: string;
+  /** Extra ads.txt / sellers lines for non-AdSense networks, one per line. */
+  ads_txt: string;
+}
+
+/** A configurable ad area on the site. */
+export interface AdPlacement {
+  key: string;
+  label: string;
+  hint: string;
+}
+
+/**
+ * Stored configuration for one ad area. `code` accepts raw markup from any ad
+ * network; `adsense_slot` is only a convenience fallback for Google AdSense.
+ */
+export interface AdUnit {
+  placement: string;
+  name: string;
+  code: string;
+  adsense_slot: string;
+  enabled: boolean;
 }
 
 

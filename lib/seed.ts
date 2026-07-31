@@ -167,4 +167,4 @@ If you believe you have found a security vulnerability in Figimi, we appreciate 
 For any security or compliance question, reach us via the [Contact page](/contact).` },
 } as const;
 
-export const seedSettings: SiteSettings = { analytics_id: "", adsense_client_id: "", google_tag_id: "", head_code: "", body_code: "" };
+export const seedSettings: SiteSettings = { analytics_id: "", adsense_client_id: "", google_tag_id: "", head_code: "", body_code: "", ads_txt: "" };

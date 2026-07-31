@@ -3,12 +3,12 @@
 import { useEffect } from "react";
 
 /**
- * Injects an admin-provided code snippet into <head> or <body>.
+ * Client-side fallback injector for the parts of an admin snippet that cannot be
+ * server-rendered (inline `on*` handlers, exotic tags, unbalanced markup).
  *
- * Accepts either:
- *  - a full HTML snippet from a provider (may include <script>, <noscript>,
- *    <meta>, pixels, etc.) — script tags are recreated so they actually execute; or
- *  - bare JavaScript (no tags) — it is wrapped in a <script> and run.
+ * Prefer CodeSnippet, which server-renders the snippet so verification meta tags
+ * and ad loaders appear in the initial HTML. This component only runs after
+ * hydration, so anything it injects is invisible to crawlers and verifiers.
  *
  * Only administrators can set this value (in Admin -> Settings).
  */

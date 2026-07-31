@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { legalPages } from "@/lib/seed";
+import { adPlacementKeys } from "@/lib/ads";
 
 // Top-level paths that already exist as real routes; custom pages may not use them.
 const reservedSlugs = new Set(["", "blog", "contact", "tools", "admin", "api", "new", "sitemap", "robots", "rss", "ads"]);
@@ -50,7 +51,30 @@ export async function deleteContentAction(form: FormData) {
   revalidateTag("content-pages");
   redirect("/admin/pages?deleted=1");
 }
-export async function saveSettingsAction(form: FormData) { await requireAdmin(); const payload = { id: 1, analytics_id: text(form, "analytics_id"), adsense_client_id: text(form, "adsense_client_id"), google_tag_id: text(form, "google_tag_id"), head_code: String(form.get("head_code") || ""), body_code: String(form.get("body_code") || "") }; const { error } = await createAdminClient().from("site_settings").upsert(payload); if (error) redirect(`/admin/settings?error=${encodeURIComponent(error.message)}`); revalidateTag("site-settings"); revalidatePath("/", "layout"); redirect("/admin/settings?saved=1"); }
+export async function saveSettingsAction(form: FormData) { await requireAdmin(); const payload = { id: 1, analytics_id: text(form, "analytics_id"), adsense_client_id: text(form, "adsense_client_id"), google_tag_id: text(form, "google_tag_id"), head_code: String(form.get("head_code") || ""), body_code: String(form.get("body_code") || ""), ads_txt: String(form.get("ads_txt") || "") }; const { error } = await createAdminClient().from("site_settings").upsert(payload); if (error) redirect(`/admin/settings?error=${encodeURIComponent(error.message)}`); revalidateTag("site-settings"); revalidatePath("/", "layout"); revalidatePath("/ads.txt"); redirect("/admin/settings?saved=1"); }
+
+// Saves the code for one ad area. The code may come from any ad network; it is
+// stored verbatim and rendered into the page by the AdSlot component.
+export async function saveAdUnitAction(form: FormData) {
+  await requireAdmin();
+  const placement = text(form, "placement");
+  if (!adPlacementKeys.includes(placement)) redirect(`/admin/ads?error=${encodeURIComponent("Unknown ad placement.")}`);
+  const payload = { placement, name: text(form, "name"), code: String(form.get("code") || ""), adsense_slot: text(form, "adsense_slot").replace(/\D/g, ""), enabled: form.get("enabled") === "on" };
+  const { error } = await createAdminClient().from("ad_units").upsert(payload);
+  if (error) redirect(`/admin/ads?error=${encodeURIComponent(error.message)}`);
+  revalidateTag("ad-units");
+  revalidatePath("/", "layout");
+  redirect(`/admin/ads?saved=${encodeURIComponent(placement)}`);
+}
+
+export async function clearAdUnitAction(form: FormData) {
+  await requireAdmin();
+  const placement = text(form, "placement");
+  if (placement) await createAdminClient().from("ad_units").delete().eq("placement", placement);
+  revalidateTag("ad-units");
+  revalidatePath("/", "layout");
+  redirect("/admin/ads?cleared=1");
+}
 
 export async function uploadMediaAction(form: FormData) { const { user } = await requireAdmin(); const file = form.get("file"); if (!(file instanceof File) || !file.size) redirect("/admin/media?error=file"); if (file.size > 5 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) redirect("/admin/media?error=type"); const admin = createAdminClient(), safe = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").slice(-100), path = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}-${safe}`; const { error: uploadError } = await admin.storage.from("media").upload(path, file, { contentType: file.type, upsert: false, cacheControl: "31536000" }); if (uploadError) redirect(`/admin/media?error=${encodeURIComponent(uploadError.message)}`); const { data } = admin.storage.from("media").getPublicUrl(path); const cdnBase = process.env.NEXT_PUBLIC_MEDIA_CDN_URL?.replace(/\/$/, ""), url = cdnBase ? `${cdnBase}/${path}` : data.publicUrl; await admin.from("media").insert({ name: file.name, path, url, alt_text: text(form, "alt_text"), mime_type: file.type, size_bytes: file.size, created_by: user.id }); redirect("/admin/media?uploaded=1"); }
 export async function deleteMediaAction(form: FormData) { await requireAdmin(); const id = text(form, "id"), path = text(form, "path"), admin = createAdminClient(); if (path) await admin.storage.from("media").remove([path]); if (id) await admin.from("media").delete().eq("id", id); redirect("/admin/media?deleted=1"); }
