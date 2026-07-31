@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import type { BlogPost, ContentPageRecord, SiteSettings, ToolPageRecord } from "@/types";
+import type { AdUnit, BlogPost, ContentPageRecord, SiteSettings, ToolPageRecord } from "@/types";
 import { legalPages, seedSettings } from "./seed";
 import { toolBySlug } from "./tools";
 import { createPublicClient } from "./supabase/public";
@@ -32,4 +32,12 @@ export const getContentPage = unstable_cache(async (slug: string): Promise<Conte
 // used to pre-render routes and for sitemaps.
 export const getContentPageSlugs = unstable_cache(async (): Promise<string[]> => { const legal = Object.keys(legalPages); const client = createPublicClient(); if (!client) return legal; try { const { data, error } = await client.from("content_pages").select("slug"); if (error) throw error; const dbSlugs = (data || []).map((row) => row.slug as string); return Array.from(new Set([...legal, ...dbSlugs])); } catch { return legal; } }, ["content-page-slugs"], { revalidate: 300, tags: ["content-pages"] });
 
-export const getSiteSettings = unstable_cache(async (): Promise<SiteSettings> => { const client = createPublicClient(); if (!client) return seedSettings; try { const { data, error } = await client.from("site_settings").select("analytics_id,adsense_client_id,google_tag_id,head_code,body_code").eq("id", 1).maybeSingle(); if (error) throw error; return data ? { ...seedSettings, ...data } : seedSettings; } catch { return seedSettings; } }, ["site-settings"], { revalidate: 300, tags: ["site-settings"] });
+// Selects every column rather than an explicit list: a column added by a newer
+// migration (e.g. ads_txt) must never make this query fail, because that would
+// silently drop the analytics, AdSense, and head/body code settings too.
+export const getSiteSettings = unstable_cache(async (): Promise<SiteSettings> => { const client = createPublicClient(); if (!client) return seedSettings; try { const { data, error } = await client.from("site_settings").select("*").eq("id", 1).maybeSingle(); if (error) throw error; return data ? { ...seedSettings, ...data } : seedSettings; } catch { return seedSettings; } }, ["site-settings"], { revalidate: 300, tags: ["site-settings"] });
+
+// Ad areas are keyed by placement so every page can look up its own code with a
+// single cached read. Returns an empty map when the table or DB is unavailable,
+// which simply means no ads render.
+export const getAdUnits = unstable_cache(async (): Promise<Record<string, AdUnit>> => { const client = createPublicClient(); if (!client) return {}; try { const { data, error } = await client.from("ad_units").select("placement,name,code,adsense_slot,enabled"); if (error) throw error; return Object.fromEntries(((data as AdUnit[]) ?? []).map((unit) => [unit.placement, unit])); } catch { return {}; } }, ["ad-units"], { revalidate: 300, tags: ["ad-units"] });

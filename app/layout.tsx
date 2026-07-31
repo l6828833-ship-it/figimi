@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { RawSnippet } from "@/components/raw-snippet";
+import { CodeSnippet } from "@/components/code-snippet";
+import { normalizeAdsenseClient } from "@/lib/ads";
 import { getSiteSettings } from "@/lib/data";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
@@ -19,12 +20,11 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, colo
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const settings = await getSiteSettings();
-  // Normalize the AdSense publisher ID to the required ca-pub-XXXX form so the
-  // verification meta tag and loader script are always valid, whether the stored
-  // value is "1277…", "pub-1277…", or "ca-pub-1277…".
-  const rawAdsense = (settings.adsense_client_id || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "").trim();
-  const adsenseDigits = rawAdsense.replace(/\D/g, "");
-  const adsense = adsenseDigits ? `ca-pub-${adsenseDigits}` : "";
+  // Normalized to the required ca-pub-XXXX form so the verification meta tag and
+  // loader script stay valid whether the stored value is "1277…", "pub-1277…",
+  // or "ca-pub-1277…". AdSense is optional: any other network is configured
+  // through Settings -> head code plus Admin -> Ads.
+  const adsense = normalizeAdsenseClient(settings.adsense_client_id || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID);
   const tag = settings.analytics_id || settings.google_tag_id || process.env.NEXT_PUBLIC_GOOGLE_TAG_ID || process.env.NEXT_PUBLIC_GA_ID;
   const isGtm = tag?.startsWith("GTM-");
   // Show the footer "Manage cookie preferences" link only when a consent tool
@@ -33,5 +33,24 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // automatically — no dead button before consent is configured.
   const consentInstalled = /cookieyes|cookiebot|cookiehub|osano|termly|onetrust|iubenda/i.test(`${settings.head_code || ""} ${settings.body_code || ""}`);
   const siteSchema = JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "Organization", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description }, { "@type": "WebSite", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description }] }).replace(/</g, "\\u003c");
-  return <html lang="en"><head><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteSchema }} />{adsense && <><meta name="google-adsense-account" content={adsense} /><meta name="adsense-client" content={adsense} /><script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense}`} crossOrigin="anonymous" /></>}{tag && !isGtm && <><Script strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=${tag}`} /><Script id="google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tag}');`}</Script></>}{isGtm && <Script id="google-tag-manager" strategy="afterInteractive">{`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','${tag}');`}</Script>}</head><body>{isGtm && <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${tag}`} height="0" width="0" style={{ display: "none", visibility: "hidden" }} /></noscript>}<SiteHeader /><main>{children}</main><SiteFooter showCookiePreferences={consentInstalled} />{settings.head_code && <RawSnippet code={settings.head_code} target="head" />}{settings.body_code && <RawSnippet code={settings.body_code} target="body" />}</body></html>;
+  return (
+    <html lang="en">
+      <head>
+        {/* Rendered first so verification meta tags from any ad network, search
+            console, or analytics provider are present in the initial HTML. */}
+        {settings.head_code && <CodeSnippet code={settings.head_code} target="head" />}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteSchema }} />
+        {adsense && <><meta name="google-adsense-account" content={adsense} /><script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense}`} crossOrigin="anonymous" /></>}
+        {tag && !isGtm && <><Script strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=${tag}`} /><Script id="google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tag}');`}</Script></>}
+        {isGtm && <Script id="google-tag-manager" strategy="afterInteractive">{`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','${tag}');`}</Script>}
+      </head>
+      <body>
+        {isGtm && <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${tag}`} height="0" width="0" style={{ display: "none", visibility: "hidden" }} /></noscript>}
+        <SiteHeader />
+        <main>{children}</main>
+        <SiteFooter showCookiePreferences={consentInstalled} />
+        {settings.body_code && <CodeSnippet code={settings.body_code} target="body" />}
+      </body>
+    </html>
+  );
 }
