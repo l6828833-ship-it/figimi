@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { CodeSnippet } from "@/components/code-snippet";
 import { normalizeAdsenseClient } from "@/lib/ads";
 import { getSiteSettings } from "@/lib/data";
@@ -10,8 +8,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: `Free Online Text, PDF, Image & Color Tools — ${siteConfig.name}`, template: `%s | ${siteConfig.name}` },
-  description: siteConfig.description,
+  title: { default: "Figimi IPTV Player — Every stream, beautifully simple", template: `%s | ${siteConfig.name}` },
+  description: "A clean, fast IPTV player for your playlists across every screen.",
   alternates: { canonical: "/" },
   openGraph: { type: "website", siteName: siteConfig.name, title: siteConfig.name, description: siteConfig.description, url: "/" },
   twitter: { card: "summary_large_image", title: siteConfig.name, description: siteConfig.description },
@@ -27,11 +25,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const adsense = normalizeAdsenseClient(settings.adsense_client_id || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID);
   const tag = settings.analytics_id || settings.google_tag_id || process.env.NEXT_PUBLIC_GOOGLE_TAG_ID || process.env.NEXT_PUBLIC_GA_ID;
   const isGtm = tag?.startsWith("GTM-");
-  // Show the footer "Manage cookie preferences" link only when a consent tool
-  // (e.g. CookieYes) is actually installed via Settings → head/body code.
-  // This keeps the link hidden until you add CookieYes, then turns it on
-  // automatically — no dead button before consent is configured.
-  const consentInstalled = /cookieyes|cookiebot|cookiehub|osano|termly|onetrust|iubenda/i.test(`${settings.head_code || ""} ${settings.body_code || ""}`);
   const siteSchema = JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "Organization", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description }, { "@type": "WebSite", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description }] }).replace(/</g, "\\u003c");
   return (
     <html lang="en">
@@ -46,9 +39,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         {isGtm && <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${tag}`} height="0" width="0" style={{ display: "none", visibility: "hidden" }} /></noscript>}
-        <SiteHeader />
         <main>{children}</main>
-        <SiteFooter showCookiePreferences={consentInstalled} />
         {settings.body_code && <CodeSnippet code={settings.body_code} target="body" />}
       </body>
     </html>
